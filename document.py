@@ -23,6 +23,30 @@ class Document:
 def main():
     document = Document("test.html")
 
+    header = Tag("header")
+    header.add_child(Tag("h1", contents="My Second Personal Webpage!"))
+    document.body.add_child(header)
+
+    section1 = Tag("section")
+    document.body.add_child(section1)
+
+    section1.add_child(Tag("h2", contents="About Me"))
+
+    # Hobbies
+    hobbies = Tag("ul")
+    hobbies.add_child(Tag("li", contents="Teaching"))
+    hobbies.add_child(Tag("li", contents="Machining"))
+    hobbies.add_child(Tag("li", contents="Blacksmithing"))
+    hobbies.add_child(Tag("li", contents="Piano"))
+    section1.add_child(hobbies)
+
+    footer = Tag("footer")
+    document.body.add_child(footer)
+
+    p = Tag("p", contents="I'm unreachable, sorry. Nobody can contact me.")
+    p.add_attribute("style", "background-color: red;")
+    footer.add_child(p)
+
     document.write_html_file()
 
 if __name__ == "__main__":
