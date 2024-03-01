@@ -6,7 +6,7 @@ class AlreadyHasContentError(Exception):
 class Tag:
     """ Base class for a generic tag """
 
-    def __init__(self, name: str, contents: str = ""):
+    def __init__(self, name: str, contents: str = "", single_tag = False):
         # This is used when we finish a tag so we can go back to the parent (like a doubly linked list)
         # It starts as None, but when it is added with `add_child`, the parent gets set.
         self.parent: "Tag" = None
@@ -19,8 +19,9 @@ class Tag:
         # Either the tag has contents or it has children, but it cannot have both.
         self.children: list["Tag"] = []
         self.contents = contents
+        self.single_tag = single_tag
     
-    def add_attribute(self, key: str, value: str) -> None:
+    def add_attribute(self, key: str, value: str = "") -> None:
         self.attributes[key] = value
     
     def add_child(self, child: "Tag") -> None:
@@ -40,7 +41,7 @@ class Tag:
 
         TODO: listify isn't a very good name. Come up with a better one.
         """
-        attribute_str = " ".join([f'{key}="{value}"' for key, value in self.attributes.items()])
+        attribute_str = " ".join([f'{key}="{value}"' if value != "" else f'{key}' for key, value in self.attributes.items()])
 
         # My soul demands that this be here. It handles making sure there isn't a blank space after the tag
         # name if there aren't any attributes.
@@ -48,7 +49,10 @@ class Tag:
             attribute_str = " " + attribute_str
 
         open_tag = f"<{self.name}{attribute_str}>"
-        close_tag = f"</{self.name}>"
+        if self.single_tag:
+            close_tag = ""
+        else:
+            close_tag = f"</{self.name}>"
 
         if self.contents != "":
             complete_tag = f"{open_tag}{self.contents}{close_tag}"
