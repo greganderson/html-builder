@@ -20,7 +20,7 @@ class Tag:
         self.children: list["Tag"] = []
         self.contents = contents
     
-    def add_attribute(self, key: str, value: str) -> None:
+    def add_attribute(self, key: str, value: str = "") -> None:
         self.attributes[key] = value
     
     def add_child(self, child: "Tag") -> None:
