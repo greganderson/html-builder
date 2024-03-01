@@ -9,7 +9,7 @@ class Tag:
     def __init__(self, name: str, contents: str = ""):
         # This is used when we finish a tag so we can go back to the parent (like a doubly linked list)
         # It starts as None, but when it is added with `add_child`, the parent gets set.
-        self.parent = None
+        self.parent: "Tag" = None
 
         # Name of the tag, like `h1` or `p`
         self.name = name
@@ -17,7 +17,7 @@ class Tag:
         self.attributes: dict[str, str] = {}
         
         # Either the tag has contents or it has children, but it cannot have both.
-        self.children: "Tag" = []
+        self.children: list["Tag"] = []
         self.contents = contents
     
     def add_attribute(self, key: str, value: str) -> None:

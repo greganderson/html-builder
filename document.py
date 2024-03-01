@@ -1,65 +1,22 @@
+from abc import ABC, abstractmethod
+
 from tag import Tag
 
 
-class Document:
-    """ HTML Document """
+class Choice(ABC):
 
-    def __init__(self, filename: str):
-        # Filename of the HTML file this will write to
-        self.filename = filename
+    def __init__(self, text: str):
+        self.text = text
 
-        self.html = Tag("html")
-        self.head = Tag("head")
-        self.body = Tag("body")
+    @abstractmethod
+    def run_choice(self, tag: Tag):
+        pass
 
-        self.html.add_child(self.head)
-        self.html.add_child(self.body)
+class AddChildChoice(Choice):
+    def __init__(self):
+        super().__init__(text="Add a child tag")
 
-    def input_loop(self) -> None:
-        current_tag = self.body
-        while True:
-            print()
-            self.print_tag_info(current_tag)
-            print()
-
-            print("What would you like to do:")
-            print("1. Add a child tag")
-            print("2. Add an attribute")
-            print("3. Edit child tag")
-            print("4. Remove child tag")
-            print("5. Finish tag")
-            print()
-
-            choice = input("Enter choice: ")
-            if choice == "1":
-                child = self.add_child(current_tag)
-                if child is not None:
-                    current_tag = child
-            elif choice == "5":
-                if current_tag.name == "body":
-                    be_done = input("Are you sure you want to be done? (y or n): ").lower()
-                    if be_done == "y" or be_done == "yes":
-                        break
-                else:
-                    current_tag = current_tag.parent
-            else:
-                print("Invalid choice.")
-
-    def print_tag_info(self, tag: Tag) -> None:
-        print(f"Current tag: {tag}")
-        print()
-        children_string = None
-        if len(tag.children) > 0:
-            children_string = "\n\t".join([str(child) for child in tag.children])
-
-        # Print the children in a somewhat non-terrible format
-        if children_string is not None:
-            print(f"Children:")
-            print(f"\t{children_string}")
-        else:
-            print(f"Children: None")
-
-    def add_child(self, tag: Tag) -> Tag:
+    def run_choice(self, tag: Tag):
         """
         Adds a child to the tag. If contents are provided, it returns None to signify the
         child tag is complete. Otherwise it returns the tag, which will then become the new working
@@ -75,7 +32,138 @@ class Document:
         tag.add_child(child)
 
         return child if contents == "" else None
-    
+
+class AddAttributeChoice(Choice):
+    def __init__(self):
+        super().__init__(text="Add an attribute")
+
+    def run_choice(self, tag: Tag) -> Tag:
+        print("This option hasn't been implemented yet.")
+        return tag
+
+class EditAttributesChoice(Choice):
+    def __init__(self):
+        super().__init__(text="Edit attributes")
+
+    def run_choice(self, tag: Tag) -> Tag:
+        print("This option hasn't been implemented yet.")
+        return tag
+
+class EditChildTagChoice(Choice):
+    def __init__(self):
+        super().__init__(text="Edit child tag")
+
+    def run_choice(self, tag: Tag) -> Tag:
+        """ Prints the list of children, then asks the user to pick one """
+
+        while True:
+            print()
+            for i, child in enumerate(tag.children):
+                print(f"{i+1}: {child}")
+
+            try:
+                print()
+                child_num = int(input("Enter child number: "))
+                child = tag.children[child_num - 1]
+
+                # Check if they're editing a tag that has contents instead of children.
+                # We don't want to return the child if it's one of those.
+                if child.contents != "":
+                    print(f"Editing {child}:")
+                    print()
+                    child.contents = input("Enter new contents: ")
+                    return tag
+            except ValueError:
+                print("Invalid choice.")
+
+class RemoveChildTagChoice(Choice):
+    def __init__(self):
+        super().__init__(text="Remove child tag")
+
+    def run_choice(self, tag: Tag) -> Tag:
+        print("This option hasn't been implemented yet.")
+        return tag
+
+class FinishTagChoice(Choice):
+    def __init__(self):
+        super().__init__(text="Finish tag")
+
+    def run_choice(self, tag: Tag) -> Tag:
+        if tag.name == "body":
+            be_done = input("Are you sure you want to be done? (y or n): ").lower()
+            if be_done == "y" or be_done == "yes":
+                return None
+            else:
+                # Do nothing
+                return tag
+        else:
+            return tag.parent
+
+class Document:
+    """ HTML Document """
+
+    def __init__(self, filename: str):
+        # Filename of the HTML file this will write to
+        self.filename = filename
+
+        self.html = Tag("html")
+        self.head = Tag("head")
+        self.body = Tag("body")
+
+        self.html.add_child(self.head)
+        self.html.add_child(self.body)
+
+        self.choices: dict[str, Choice] = {
+            "1": AddChildChoice(),
+            "2": AddAttributeChoice(),
+            "3": EditAttributesChoice(),
+            "4": EditChildTagChoice(),
+            "5": RemoveChildTagChoice(),
+            "6": FinishTagChoice(),
+        }
+
+    def input_loop(self) -> None:
+        current_tag = self.body
+        while True:
+            print()
+            self.print_tag_info(current_tag)
+            print()
+
+            print("What would you like to do:")
+            for key, value in self.choices.items():
+                print(f"{key}. {value.text}")
+            print()
+
+            choice = input("Enter choice: ")
+
+            if choice not in self.choices:
+                print()
+                print("Invalid choice.")
+                continue
+
+            result_tag = self.choices[choice].run_choice(current_tag)
+
+            if result_tag is None:
+                # Check if they're trying to be done
+                if isinstance(self.choices[choice], FinishTagChoice):
+                    break
+            else:
+                current_tag = result_tag
+
+    def print_tag_info(self, tag: Tag) -> None:
+        print(f"Current tag: {tag}")
+        print()
+        children_string = None
+        if len(tag.children) > 0:
+            children_string = "\n\t".join([str(child) for child in tag.children])
+
+        # Print the children in a somewhat non-terrible format
+        if children_string is not None:
+            print(f"Children:")
+            print(f"\t{children_string}")
+        else:
+            print(f"Children: None")
+
     def write_html_file(self) -> None:
         with open(self.filename, "w") as f:
             f.write("\n".join(self.html.listify()))
