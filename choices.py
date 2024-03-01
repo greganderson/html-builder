@@ -73,6 +73,8 @@ class EditChildTagChoice(Choice):
                     print()
                     child.contents = input("Enter new contents: ")
                     return tag
+                else:
+                    print("You can't edit that tag because it has child tags, not content")
             except ValueError:
                 print("Invalid choice.")
 
