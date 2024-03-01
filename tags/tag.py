@@ -40,7 +40,7 @@ class Tag:
 
         TODO: listify isn't a very good name. Come up with a better one.
         """
-        attribute_str = " ".join([f'{key}="{value}"' for key, value in self.attributes.items()])
+        attribute_str = " ".join([f'{key}="{value}"' if value != "" else f'{key}' for key, value in self.attributes.items()])
 
         # My soul demands that this be here. It handles making sure there isn't a blank space after the tag
         # name if there aren't any attributes.
