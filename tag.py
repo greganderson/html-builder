@@ -7,6 +7,10 @@ class Tag:
     """ Base class for a generic tag """
 
     def __init__(self, name: str, contents: str = ""):
+        # This is used when we finish a tag so we can go back to the parent (like a doubly linked list)
+        # It starts as None, but when it is added with `add_child`, the parent gets set.
+        self.parent = None
+
         # Name of the tag, like `h1` or `p`
         self.name = name
 
@@ -26,6 +30,7 @@ class Tag:
         """
         if self.contents != "":
             raise AlreadyHasContentError()
+        child.parent = self
         self.children.append(child)
     
     def listify(self) -> list[str]:

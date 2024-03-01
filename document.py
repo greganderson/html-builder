@@ -36,16 +36,28 @@ class Document:
                 if child is not None:
                     current_tag = child
             elif choice == "5":
-                break
+                if current_tag.name == "body":
+                    be_done = input("Are you sure you want to be done? (y or n): ").lower()
+                    if be_done == "y" or be_done == "yes":
+                        break
+                else:
+                    current_tag = current_tag.parent
+            else:
+                print("Invalid choice.")
 
     def print_tag_info(self, tag: Tag) -> None:
         print(f"Current tag: {tag}")
         print()
-        children_string = "None"
+        children_string = None
         if len(tag.children) > 0:
-            children_string = "\n".join([str(child) for child in tag.children])
+            children_string = "\n\t".join([str(child) for child in tag.children])
 
-        print(f"Children: {children_string}")
+        # Print the children in a somewhat non-terrible format
+        if children_string is not None:
+            print(f"Children:")
+            print(f"\t{children_string}")
+        else:
+            print(f"Children: None")
 
     def add_child(self, tag: Tag) -> Tag:
         """
@@ -53,6 +65,7 @@ class Document:
         child tag is complete. Otherwise it returns the tag, which will then become the new working
         tag.
         """
+        print()
         print("Adding a child")
         print()
         name = input("Name: ")
@@ -62,7 +75,6 @@ class Document:
         tag.add_child(child)
 
         return child if contents == "" else None
-
     
     def write_html_file(self) -> None:
         with open(self.filename, "w") as f:
