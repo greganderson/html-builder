@@ -55,3 +55,6 @@ class Tag:
             complete_tag_list += child.listify()
         
         return [open_tag] + complete_tag_list + [close_tag]
+
+    def __str__(self) -> str:
+        return f"<{self.name}>"
