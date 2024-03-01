@@ -162,3 +162,6 @@ cython_debug/
 # Vim temp files
 *.swp
 *.swo
+
+# All HTML files (since this generates them)
+*.html
