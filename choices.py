@@ -9,7 +9,7 @@ class Choice(ABC):
         self.text = text
 
     @abstractmethod
-    def run_choice(self, tag: Tag):
+    def run_choice(self, tag: Tag) -> Tag:
         pass
 
 class AddChildChoice(Choice):
