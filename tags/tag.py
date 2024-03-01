@@ -6,7 +6,7 @@ class AlreadyHasContentError(Exception):
 class Tag:
     """ Base class for a generic tag """
 
-    def __init__(self, name: str, contents: str = ""):
+    def __init__(self, name: str, contents: str = "", single_tag = False):
         # This is used when we finish a tag so we can go back to the parent (like a doubly linked list)
         # It starts as None, but when it is added with `add_child`, the parent gets set.
         self.parent: "Tag" = None
@@ -19,6 +19,7 @@ class Tag:
         # Either the tag has contents or it has children, but it cannot have both.
         self.children: list["Tag"] = []
         self.contents = contents
+        self.single_tag = single_tag
     
     def add_attribute(self, key: str, value: str = "") -> None:
         self.attributes[key] = value
@@ -48,7 +49,10 @@ class Tag:
             attribute_str = " " + attribute_str
 
         open_tag = f"<{self.name}{attribute_str}>"
-        close_tag = f"</{self.name}>"
+        if self.single_tag:
+            close_tag = ""
+        else:
+            close_tag = f"</{self.name}>"
 
         if self.contents != "":
             complete_tag = f"{open_tag}{self.contents}{close_tag}"
